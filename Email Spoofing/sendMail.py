@@ -172,7 +172,7 @@ for i in range(loginAttempts+1):
 	loginFailure = False;
 	
 	#Username for login
-	SMTPUser = input("Please enter username: ")
+	SMTPUser = input("Please enter username (Enter NONE for no login): ")
 	
 	#Allows someone to change SMTP servers if they mess up the first time
 	if (SMTPUser.lower() == "Change SMTP Server".lower()):
@@ -181,7 +181,8 @@ for i in range(loginAttempts+1):
 		continue
 	
 	#Password for login. getpass means the password won't display in console
-	SMTPPassword = getpass.getpass("Please enter password: ")
+	if (SMTPUser.lower() != "NONE".lower()):
+		SMTPPassword = getpass.getpass("Please enter password: ")
 	
 	#Allow for choosing automatic SSL connection
 	SSL = 'Maybe'
@@ -195,6 +196,8 @@ for i in range(loginAttempts+1):
 	
 	#The actual login. If fails, displays message.
 	#Console messages make this section pretty self-explanitory
+	if (SMTPUser.lower() == "NONE".lower()):
+		break
 	try:
 		server.login(SMTPUser, SMTPPassword)
 	except smtplib.SMTPAuthenticationError:
