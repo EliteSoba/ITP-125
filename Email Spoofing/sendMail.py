@@ -17,12 +17,12 @@ import sys
 #Next up is making a GUI version of this                                                               #
 ########################################################################################################
 
-#Usage: sendMail.py [-v] -s="SMTP Server" [-SSL] -u="Username" [-p="Password"] -t="Comma, Divided, Recepients" -f="From <Email>" [-sub="Subject"] -m="File"
+#Usage: sendMail.py [-v] -s="SMTP Server" [-SSL] [-u="Username"] [-p="Password"] -t="Comma, Divided, Recepients" -f="From <Email>" [-sub="Subject"] -m="File"
 # [s]erver, [u]sername, [p]assword, [t]o, [f]rom, [sub]ject, [m]essage
 #SAMPLE: sendMail.py -v -s="smtp.gmail.com" -SSL -u="tobiasle@usc.edu" -t="joseph.greenfield@usc.edu" -f="God <God@heaven.com>" -m="commandments.txt"
 #You can also just run sendMail.py and it'll prompt you for the inputs along the way.
 
-PROPERFORMAT = "sendMail.py [-v] -s=\"SMTP Server\" [-SSL] -u=\"Username\" [-p=\"Password\"] -t=\"Comma, Divided, Recepients\" -f=\"From <Email>\" [-sub=\"Subject\"] -m=\"File\" for command line mode"
+PROPERFORMAT = "sendMail.py [-v] -s=\"SMTP Server\" [-SSL] [-u=\"Username\"] [-p=\"Password\"] -t=\"Comma, Divided, Recepients\" -f=\"From <Email>\" [-sub=\"Subject\"] -m=\"File\" for command line mode"
 
 commands = ['s', 'h', 'v', 'ssl','u','p','t','f','sub','m']
 
@@ -81,7 +81,8 @@ if len(sys.argv) != 1:
 				print("[-v]"+"\t\t\t\tRuns in verbose mode")
 				print("-s=\"SMTP Server\""+"\t\tThe name of the SMTP Server")
 				print("[-SSL]"+"\t\t\t\tAutomatically starts up with SSL Connection")
-				print("-u=\"Username\""+"\t\t\tThe Username for the SMTP Server")
+				print("[-u=\"Username\"]"+"\t\t\tThe Username for the SMTP Server")
+				print("\t\t\t\t(If omitted, does not authenticate)")
 				print("[-p=\"Password\"]"+"\t\t\tThe Password for the SMTP Server")
 				print("\t\t\t\t(If omitted, requests nonechoed password)")
 				print("-t=\"Comma, Divided, Recepients"+"\tThe desired recepients")
@@ -98,7 +99,7 @@ if len(sys.argv) != 1:
 				quit()
 
 	#After commands have been processed
-	if SMTPServer == " " or SMTPUsername == " " or Recepients == " " or Sender == " " or f == " ":
+	if SMTPServer == " " or Recepients == " " or Sender == " " or f == " ":
 		print("Error: Not enough arguments for a proper execution")
 		print("Please type sendMail.py -h for help")
 		quit()
@@ -110,7 +111,7 @@ if len(sys.argv) != 1:
 	except IOError:
 		print("Error: Invalid file path for message")
 		quit()
-	if SMTPPassword == " ":
+	if SMTPPassword == " " and SMTPUsername != " ":
 		SMTPPassword = getpass.getpass("Password:")
 	
 	#Connect to Server
@@ -122,16 +123,17 @@ if len(sys.argv) != 1:
 		server = smtplib.SMTP(SMTPServer)
 	
 	#Authenticate
-	if verbose:
-		print("Logging in...")
-	try:
-		server.login(SMTPUsername, SMTPPassword)
-	except smtplib.SMTPAuthenticationError:
-		print ("Error: Incorrect username or password")
-		quit()
-	except smtplib.SMTPException:
-		print ("Unknown error has occured")
-		quit()
+	if SMTPUsername != " ":
+		if verbose:
+			print("Logging in...")
+		try:
+			server.login(SMTPUsername, SMTPPassword)
+		except smtplib.SMTPAuthenticationError:
+			print ("Error: Incorrect username or password")
+			quit()
+		except smtplib.SMTPException:
+			print ("Unknown error has occured")
+			quit()
 	
 	#Message creation
 	if verbose:
